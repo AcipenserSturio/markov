@@ -42,9 +42,8 @@ def train():
         json.dump(markov, f, indent=2)
 
 
-def infer():
+def infer(ngram):
     MAX_LENGTH = 500
-    ngram = START_NGRAM
     i = 0
     while ngram != END_NGRAM:
         i += 1
@@ -54,6 +53,7 @@ def infer():
         options = markov[ngram]
         # ngram = choices(list(options.keys()),
         #                 list(options.values()))[0]
+        # Bias towards more common options
         ngram = choices(list(options.keys()),
                         list([i**1.2 for i in options.values()]))[0]
         # ngram = max(options, key=options.get)
@@ -67,6 +67,9 @@ if __name__ == "__main__":
     with open(MODEL) as f:
         markov = json.load(f)
 
-    while not input():
-        print("".join(infer()))
+    query = ""
+    while (string := input()) != "q":
+        if string:
+            query = string
+        print(query + "".join(infer((START_NGRAM + query)[-LENGTH_NGRAM:])))
         print()
